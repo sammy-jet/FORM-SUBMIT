@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Message Form</title>
 
-  <!-- SweetAlert2 for stylish popups -->
+  <!-- SweetAlert2 for popups -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
@@ -44,25 +44,29 @@
 </head>
 <body>
 
-  <form id="myForm">
+  <form id="myForm" aria-label="Contact Form">
     <h2>Contact Us</h2>
+
     <label for="username">Your Name:</label>
-    <input type="text" id="username" name="username" placeholder="Enter your name" required />
+    <input type="text" id="username" name="username" placeholder="Enter your name" required aria-required="true" />
+
+    <label for="email">Your Email:</label>
+    <input type="email" id="email" name="email" placeholder="Enter your email" aria-required="true" />
 
     <label for="message">Your Message:</label>
-    <textarea id="message" name="message" rows="4" placeholder="Type your message here..." required></textarea>
+    <textarea id="message" name="message" rows="4" placeholder="Type your message here..." required aria-required="true"></textarea>
 
-    <input type="submit" value="Send" />
+    <input type="submit" value="Send" aria-label="Send Message" />
   </form>
 
   <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyzp3Z8VN49QDcfZCOGlzmK1vwIX7hYvlWIHi_qsoYoO6pGBjH4aLe5GBKu4H_XPI3o/exec';
 
-
     document.getElementById("myForm").addEventListener("submit", function(e) {
       e.preventDefault();
 
       const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
       const message = document.getElementById("message").value.trim();
 
       if (!username || !message) {
@@ -74,18 +78,28 @@
         return;
       }
 
-      // Using URLSearchParams to avoid triggering CORS preflight
+      Swal.fire({
+        title: 'Sending...',
+        text: 'Please wait a moment...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
       const formData = new URLSearchParams();
       formData.append("username", username);
+      formData.append("email", email);
       formData.append("message", message);
 
       fetch(scriptURL, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
         body: formData
       })
       .then(response => response.text())
       .then(result => {
-        if (result.includes("Success")) {
+        if (result.toLowerCase().includes("success")) {
           Swal.fire({
             icon: 'success',
             title: 'Message Sent!',
@@ -109,3 +123,8 @@
 
 </body>
 </html>
+<!--
+  This HTML file contains a contact form that allows users to submit their name, email, and message.
+  It uses SweetAlert2 for user-friendly popups and fetch API to send data to a Google Apps Script endpoint.
+  The form includes basic validation and error handling.
+
