@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Message Form</title>
+
+  <!-- SweetAlert2 for stylish popups -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 50px;
+      background: #f4f4f4;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    input[type="submit"] {
+      background-color: #0078d7;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    input[type="submit"]:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+
+  <form id="myForm">
+    <h2>Contact Us</h2>
+    <label for="username">Your Name:</label>
+    <input type="text" id="username" name="username" placeholder="Enter your name" required />
+
+    <label for="message">Your Message:</label>
+    <textarea id="message" name="message" rows="4" placeholder="Type your message here..." required></textarea>
+
+    <input type="submit" value="Send" />
+  </form>
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyzp3Z8VN49QDcfZCOGlzmK1vwIX7hYvlWIHi_qsoYoO6pGBjH4aLe5GBKu4H_XPI3o/exec';
+
+
+    document.getElementById("myForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const username = document.getElementById("username").value.trim();
+      const message = document.getElementById("message").value.trim();
+
+      if (!username || !message) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Hold on!',
+          text: 'Oga, fill all the fields before you submit 😅'
+        });
+        return;
+      }
+
+      // Using URLSearchParams to avoid triggering CORS preflight
+      const formData = new URLSearchParams();
+      formData.append("username", username);
+      formData.append("message", message);
+
+      fetch(scriptURL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(result => {
+        if (result.includes("Success")) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Message Sent!',
+            text: 'Your message was saved successfully ✅'
+          });
+          document.getElementById("myForm").reset();
+        } else {
+          throw new Error(result);
+        }
+      })
+      .catch(error => {
+        console.error('Submission error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops!',
+          text: 'Something went wrong. Try again later.'
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
